@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>House Price Estimator</title>
+  <style>
+    :root { color-scheme: light dark; }
+        body {
+          font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+          margin: 0;
+          min-height: 100vh;
+          background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('/static/bg-index.png') no-repeat center center fixed;
+          background-size: cover;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 2rem;
+        }
+    .container {
+      width: 100%;
+      max-width: 720px;
+      margin: auto;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(15px) saturate(180%);
+      -webkit-backdrop-filter: blur(15px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #fff;
+      border-radius: 15px;
+      padding: 2rem;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    }
+    h1 { font-size: 1.8rem; margin-bottom: 1.5rem; font-weight: 600; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+    form { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    label { display: block; font-weight: 600; margin-bottom: 0.25rem; color: #fff; }
+    input, select { padding: 0.55rem; font-size: 1rem; width: 100%; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; background: rgba(255,255,255,0.2); color: #fff; }
+    input::placeholder { color: rgba(255,255,255,0.7); }
+    input:focus, select:focus { outline: none; border-color: rgba(255,255,255,0.6); background: rgba(255,255,255,0.25); }
+    select option { background: #2c3e50; color: #fff; padding: 0.5rem; }
+    .full { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+    small { color: rgba(255,255,255,0.9); }
+    button { cursor: pointer; border: 1px solid #0b5ed7; background: #0d6efd; color: #fff; padding: 0.85rem 3rem; font-size: 1.2rem; font-weight: 600; border-radius: 10px; min-width: 250px; transition: all 0.3s ease; }
+    button:hover { background: #0b5ed7; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4); }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Estimate House Price</h1>
+    <form method="POST" action="{{ url_for('predict') }}">
+      <div>
+        <label for="bedrooms">Bedrooms</label>
+        <input type="number" id="bedrooms" name="bedrooms" min="0" max="20" step="1" required placeholder="e.g. 3">
+      </div>
+      <div>
+        <label for="bathrooms">Bathrooms</label>
+        <input type="number" id="bathrooms" name="bathrooms" min="0" max="20" step="1" required placeholder="e.g. 2">
+      </div>
+      <div>
+        <label for="area">Area (sq ft)</label>
+        <input type="number" id="area" name="area" min="200" max="20000" step="1" required placeholder="e.g. 1500">
+      </div>
+      <div>
+        <label for="floors">Floors</label>
+        <input type="number" id="floors" name="floors" min="1" max="5" step="1" required placeholder="e.g. 2">
+      </div>
+      <div>
+        <label for="yearbuilt">Year Built</label>
+        <input type="number" id="yearbuilt" name="yearbuilt" min="1900" max="2100" step="1" required placeholder="e.g. 2005">
+      </div>
+      <div>
+        <label for="location">Location</label>
+        <select id="location" name="location" required>
+          {% if locations and locations|length > 0 %}
+            {% for loc in locations %}
+            <option value="{{ loc }}">{{ loc }}</option>
+            {% endfor %}
+          {% else %}
+            <option value="" disabled selected>No locations found in CSV</option>
+          {% endif %}
+        </select>
+      </div>
+      <div>
+        <label for="condition">Condition</label>
+        <select id="condition" name="condition" required>
+          {% if conditions and conditions|length > 0 %}
+            {% for c in conditions %}
+            <option value="{{ c }}">{{ c }}</option>
+            {% endfor %}
+          {% else %}
+            <option value="" disabled selected>No conditions in CSV</option>
+          {% endif %}
+        </select>
+      </div>
+      <div>
+        <label for="garage">Garage</label>
+        <select id="garage" name="garage" required>
+          {% if garage_options and garage_options|length > 0 %}
+            {% for g in garage_options %}
+            <option value="{{ g }}">{{ g }}</option>
+            {% endfor %}
+          {% else %}
+            <option value="" disabled selected>No garage values in CSV</option>
+          {% endif %}
+        </select>
+      </div>
+      <div class="full">
+        <button type="submit" id="predictBtn">Predict Price</button><br>
+        <small>Values are estimates from a trained regression model.</small>
+      </div>
+    </form>
+  </div>
+</body>
+</html>
